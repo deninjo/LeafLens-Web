@@ -1,4 +1,4 @@
 .env
-myvenv/
+leaflensvenv/
 __pycache__/
 *.pyc

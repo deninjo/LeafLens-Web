@@ -36,3 +36,8 @@ user filtered analytics: /api/predictions/?user=123
 Why make image fields read-only?
 Because images are saved automatically by the prediction endpoint — not manually POSTed by the client.
 """
+
+
+# for handling uploads in the Browsable API
+class PredictionUploadSerializer(serializers.Serializer):
+    image = serializers.ImageField(required=True)

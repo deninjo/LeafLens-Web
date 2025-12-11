@@ -22,5 +22,5 @@ urlpatterns = [
 
     # All APIs live under /api/
     path('api/', include('diseases.urls')),
-
+    path('api/', include('predictions.urls')),
 ]
