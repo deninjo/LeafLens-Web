@@ -24,6 +24,12 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .models import Prediction
 from .serializers import PredictionSerializer
 
+# filters
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework import renderers
+from .filters import PredictionFilter
+
 
 # Create your views here.
 
@@ -116,13 +122,28 @@ class PredictionViewSet(viewsets.ModelViewSet):
     Handles GET (list/retrieve) and DELETE for Prediction objects.
     Filters results by authenticated user.
     """
+    queryset = Disease.objects.all()
     serializer_class = PredictionSerializer
-    permission_classes = []  # for now, can add auth later
+
+    # Enable filtering, searching, ordering
+    renderer_classes = [renderers.JSONRenderer, renderers.BrowsableAPIRenderer]  # browsable API UI/returns JSON
+    filterset_class = PredictionFilter
+
+    search_fields = [
+        'predicted_disease__name',
+    ]
+
+    ordering_fields = ['created_at', 'id']
+    ordering = ['-created_at']
+
 
     def get_queryset(self):
         user = self.request.user
+        # If user is authenticated → return their predictions
         if user.is_authenticated:
             return Prediction.objects.filter(user=user)
+
+        # If anonymous → return none
         return Prediction.objects.none()
 #
 

@@ -2,3 +2,4 @@
 leaflensvenv/
 __pycache__/
 *.pyc
+media/predictions/
