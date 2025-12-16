@@ -2,5 +2,5 @@
 leaflensvenv/
 __pycache__/
 *.pyc
-media/predictions/*
-!media/predictions/.gitkeep
+leaflens/media/predictions/*
+!leaflens/media/predictions/.gitkeep

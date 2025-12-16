@@ -39,7 +39,7 @@ class Suggestion(models.Model):
             ('approved', 'Approved'),
             ('rejected', 'Rejected'),
         ],
-        default='pending'
+        default='pending' # any new suggestion created will automatically have status = pending
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
