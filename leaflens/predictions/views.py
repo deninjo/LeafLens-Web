@@ -18,6 +18,8 @@ from diseases.models import Disease
 
 from ml.utils import is_maize_clip, run_tflite_inference
 
+from .throttles import PredictAnonThrottle, PredictUserThrottle
+
 # retrieve predictions
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -39,6 +41,8 @@ class PredictAPIView(CreateAPIView):
         Handles POST requests with an image and performs
         inference x prediction
     """
+    # custom throttles for api rate limiting
+    throttle_classes = [PredictAnonThrottle, PredictUserThrottle]
 
     # Handles file uploads (multipart/form-data) and regular form fields
     parser_classes = [MultiPartParser, FormParser]

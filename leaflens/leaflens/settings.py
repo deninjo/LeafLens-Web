@@ -44,7 +44,9 @@ INSTALLED_APPS = [
     'diseases',
     'predictions',
     'suggestions',
-    'ml'
+    'ml',
+    'accounts',
+    'rest_framework_simplejwt.token_blacklist'
 
 ]
 
@@ -55,6 +57,30 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
     ],
+
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+
+    ],
+
+# AllowAny globally — already handles permissions per-view
+    'DEFAULT_PERMISSION_CLASSES': [
+        "rest_framework.permissions.AllowAny",
+       ],
+
+# Limit how many API requests a client can make per minute.
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "10/min",
+        "user": "60/min",
+        "predict_anon": "3/min",
+        "predict_user": "20/min",
+}
+
 }
 
 

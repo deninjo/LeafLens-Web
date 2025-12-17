@@ -17,8 +17,20 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView, # original view for login w/o last login write
+    TokenRefreshView,
+)
+from accounts.views import CustomTokenObtainPairView
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    # auth endpoints
+    # ex: POST /api/auth/login/
+    path("api/auth/login/", CustomTokenObtainPairView.as_view()), # JWT login
+    path("api/auth/refresh/", TokenRefreshView.as_view()),  # JWT token refresh
+    path("api/auth/", include("accounts.urls")),  # User Registration endpoint
 
     # All APIs live under /api/
     path('api/', include('diseases.urls')),
