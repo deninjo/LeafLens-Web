@@ -6,6 +6,16 @@ from .serializers import SuggestionSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 
+# admin workflow
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import status
+
+# atomic transactions
+from django.db import transaction
+
+
+
 class SuggestionViewSet(viewsets.ModelViewSet):
     """
     Handles:
@@ -65,3 +75,60 @@ class SuggestionViewSet(viewsets.ModelViewSet):
         if self.request.user.is_staff:
             return Suggestion.objects.all()
         return Suggestion.objects.none()
+
+
+
+    # --------------------------------ADMIN WORKFLOW--------------------------------------#
+    @action(detail=True, methods=['patch'], permission_classes=[IsAdminUser])
+    def approve(self, request, pk=None):
+        """
+        Admin approves a suggestion and merges it into Disease.metadata
+        """
+        suggestion = self.get_object()
+        disease = suggestion.disease
+
+        # ensure either everything succeeds or nothing is saved, wrap the approval logic in an atomic transaction
+        with transaction.atomic():
+            # Defensive: ensure metadata structure exists
+            metadata = disease.metadata or {}
+            metadata.setdefault('causes', [])
+            metadata.setdefault('prevention', [])
+            metadata.setdefault('treatment', [])
+
+            # Prevent duplicates: check if suggestion already exists
+            if suggestion.suggestion in metadata[suggestion.type]:
+                return Response(
+                    {"detail": "Duplicate suggestion. Already exists in disease metadata."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Append suggestion text
+            metadata[suggestion.type].append(suggestion.suggestion)
+
+            # Save disease metadata
+            disease.metadata = metadata
+            disease.save()
+
+            # Update suggestion status
+            suggestion.status = 'approved'
+            suggestion.save()
+
+        return Response(
+            {"detail": "Suggestion approved and merged into disease metadata"},
+            status=status.HTTP_200_OK
+        )
+
+    @action(detail=True, methods=['patch'], permission_classes=[IsAdminUser])
+    def reject(self, request, pk=None):
+        """
+        Admin rejects a suggestion (no metadata changes)
+        """
+        suggestion = self.get_object()
+        suggestion.status = 'rejected'
+        suggestion.save()
+
+        return Response(
+            {"detail": "Suggestion rejected"},
+            status=status.HTTP_200_OK
+        )
+
