@@ -63,7 +63,11 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
         if response.status_code == 200:
-            # Update last_login manually
-            user = self.user
+            # Get user from serializer's validated data
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            user = serializer.user
+
+            # Update last_login
             update_last_login(None, user)
         return response
