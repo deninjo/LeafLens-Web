@@ -126,7 +126,7 @@ class PredictionViewSet(viewsets.ModelViewSet):
     Handles GET (list/retrieve) and DELETE for Prediction objects.
     Filters results by authenticated user.
     """
-    queryset = Disease.objects.all()
+    queryset = Prediction.objects.all()
     serializer_class = PredictionSerializer
 
     # Enable filtering, searching, ordering
@@ -149,5 +149,5 @@ class PredictionViewSet(viewsets.ModelViewSet):
 
         # If anonymous → return none
         return Prediction.objects.none()
-#
+
 

@@ -15,7 +15,8 @@ class SuggestionSerializer(serializers.ModelSerializer):
         ]
         # client (frontend or API consumer) is NOT allowed to set or modify
         # these fields when creating or updating a Suggestion.
-        read_only_fields = ['status', 'created_at']
+        # user will be set automatically in perform_create()
+        read_only_fields = ['user', 'status', 'created_at']
 
 
 '''
