@@ -4,39 +4,42 @@ Everything here is loaded ONCE at startup (fast inference)
 """
 import numpy as np
 from PIL import Image
-from tensorflow.lite.python.interpreter import Interpreter
-
-import torch
-import clip
-
 from django.conf import settings
 
-# ---------------------------
-# Device for CLIP
-# ---------------------------
-device = "cuda" if torch.cuda.is_available() else "cpu"
+# To skip ML loading during tests (and keep production behavior unchanged)
+# and Guard heavy ML imports
+if not getattr(settings, 'TESTING', False):
+      import torch
+      import clip
+      from tensorflow.lite.python.interpreter import Interpreter
 
-# ---------------------------
-# TFLite model
-# ---------------------------
-TFLITE_PATH = str(settings.BASE_DIR / 'ml/models/mobilenetv2_v1_44_0.996.tflite')
-classifier_interpreter = Interpreter(model_path=TFLITE_PATH)
-classifier_interpreter.allocate_tensors()
+      # ---------------------------
+      # Device for CLIP
+      # ---------------------------
+      device = "cuda" if torch.cuda.is_available() else "cpu"
 
-# ---------------------------
-# CLIP model
-# ---------------------------
-clip_model, clip_preprocess = clip.load("ViT-B/32", device=device)
-maize_prompts = [
-    "maize leaf",
-    "maize plant leaf",
-    "corn leaf",
-    "maize crop leaf",
-    "closeup of maize leaf",
-    "maize disease leaf",
-    "healthy maize leaf"
-]
-text_tokens = clip.tokenize(maize_prompts).to(device)
+      # ---------------------------
+      # TFLite model
+      # ---------------------------
+      TFLITE_PATH = str(settings.BASE_DIR / 'ml/models/mobilenetv2_v1_44_0.996.tflite')
+      classifier_interpreter = Interpreter(model_path=TFLITE_PATH)
+      classifier_interpreter.allocate_tensors()
+
+      # ---------------------------
+      # CLIP model
+      # ---------------------------
+      clip_model, clip_preprocess = clip.load("ViT-B/32", device=device)
+      maize_prompts = [
+          "maize leaf",
+          "maize plant leaf",
+          "corn leaf",
+          "maize crop leaf",
+          "closeup of maize leaf",
+          "maize disease leaf",
+          "healthy maize leaf"
+      ]
+      text_tokens = clip.tokenize(maize_prompts).to(device)
+
 
 # ---------------------------
 # Class names

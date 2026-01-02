@@ -132,6 +132,9 @@ DATABASES = {
     }
 }
 
+# testing flag
+TESTING = "test" in sys.argv
+
 # Use SQLite for tests
 if 'test' in sys.argv:
     DATABASES = {
