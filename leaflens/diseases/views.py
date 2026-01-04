@@ -13,9 +13,10 @@ from .filters import DiseaseFilter
 
 # Create your views here.
 
-# viewSet for performing read-only operations on Diseases(wrap multiple CBV methods into one class)
+# viewSet Diseases(wrap multiple CBV methods into one class)
 # LIST ALL DISEASES x RETRIEVE ONE DISEASE
 class DiseaseViewSet(ReadOnlyModelViewSet):
+    """Performing read-only operations on Diseases"""
     queryset = Disease.objects.all()
     serializer_class = DiseaseSerializer
 

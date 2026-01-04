@@ -7,9 +7,19 @@ from .serializers import RegisterSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import update_last_login
 from rest_framework_simplejwt.views import TokenObtainPairView
+from drf_spectacular.utils import extend_schema
+
 
 # Create your views here.
 
+# Annotate with @extend_schema to add documentation hints to RegisterView
+@extend_schema(
+    request=RegisterSerializer,
+    responses={
+        201: {"detail": "User registered successfully"},
+        400: RegisterSerializer
+    },
+)
 class RegisterView(APIView):
     """
     API endpoint for user registration.
@@ -27,7 +37,7 @@ class RegisterView(APIView):
             serializer.save()
             return Response(
                 {"detail": "User registered successfully"},
-                status=status.HTTP_201_CREATED,  # HTTP 201 = created
+                status=status.HTTP_201_CREATED,  # successfully created status code
             )
 
         # If validation fails, return errors with HTTP 400
@@ -36,6 +46,22 @@ class RegisterView(APIView):
 
 
 
+# Annotate with @extend_schema to add documentation hints to LogoutView
+@extend_schema(
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "refresh": {"type": "string"}
+            },
+            "required": ["refresh"]
+        }
+    },
+    responses={
+        205: {"detail": "Successfully logged out"},
+        400: {"error": "Invalid token"}
+    },
+)
 class LogoutView(APIView):
     """
     Logs out a user by blacklisting their refresh token.
@@ -59,7 +85,7 @@ class LogoutView(APIView):
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
-    """ensures that whenever a user logs in through JWT, last_login is updated."""
+    """Ensures that whenever a user logs in through JWT, last_login is updated."""
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
         if response.status_code == 200:

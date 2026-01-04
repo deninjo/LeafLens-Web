@@ -53,6 +53,7 @@ class PredictAPIView(CreateAPIView):
 
     # overriding get()
     def get(self, request, *args, **kwargs):
+        """Overiding GET to display a message to the user to Use POST to upload image"""
         return Response({"detail": "Use POST to upload image"}, status=200)
 
 

@@ -23,6 +23,11 @@ from rest_framework_simplejwt.views import (
 )
 from accounts.views import CustomTokenObtainPairView
 
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularSwaggerView
+)
+
 urlpatterns = [
     path('admin/', admin.site.urls),
 
@@ -35,5 +40,9 @@ urlpatterns = [
     # All APIs live under /api/
     path('api/', include('diseases.urls')),
     path('api/', include('predictions.urls')),
-    path('api/', include('suggestions.urls'))
+    path('api/', include('suggestions.urls')),
+
+    # api docs routes
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"),name="swagger-ui",),
 ]

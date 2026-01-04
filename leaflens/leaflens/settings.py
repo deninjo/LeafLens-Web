@@ -47,18 +47,21 @@ INSTALLED_APPS = [
     'suggestions',
     'ml',
     'accounts',
-    'rest_framework_simplejwt.token_blacklist'
+    'rest_framework_simplejwt.token_blacklist',
+    'drf_spectacular'
 
 ]
 
 
 REST_FRAMEWORK = {
+    # Filtering
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
     ],
 
+    # Authentication
     'DEFAULT_AUTHENTICATION_CLASSES': [
         "rest_framework_simplejwt.authentication.JWTAuthentication",
 
@@ -69,7 +72,7 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.AllowAny",
        ],
 
-# Limit how many API requests a client can make per minute.
+# Throttling: Limit how many API requests a client can make per minute.
     'DEFAULT_THROTTLE_CLASSES': [
         'rest_framework.throttling.AnonRateThrottle',
         'rest_framework.throttling.UserRateThrottle',
@@ -80,8 +83,45 @@ REST_FRAMEWORK = {
         "user": "60/min",
         "predict_anon": "3/min",
         "predict_user": "20/min",
+},
+
+    # OpenAPI / Swagger documentation
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+
 }
 
+
+# OpenAPI / Swagger documentation behavior
+SPECTACULAR_SETTINGS = {
+    "TITLE": "LeafLens API",
+    "DESCRIPTION": (
+        "LeafLens is an API for maize leaf disease detection using machine learning. "
+        "It supports JWT authentication, image-based predictions, and rate limiting."
+    ),
+    "VERSION": "1.0.0",
+
+    # Serve schema at /api/schema/
+    # schemas are the shapes of data that flow in and out of the API
+    "SERVE_INCLUDE_SCHEMA": False,
+
+    # JWT security definition
+    "SECURITY": [{"bearerAuth": []}],
+    "SECURITY_DEFINITIONS": {
+        "bearerAuth": {
+            "type": "http",
+            "scheme": "bearer",
+            "bearerFormat": "JWT",
+        }
+    },
+
+    # Better request/response separation
+    "COMPONENT_SPLIT_REQUEST": True,
+
+    # UI niceties
+    "SWAGGER_UI_SETTINGS": {
+        "persistAuthorization": True,  # keeps JWT after refresh
+        "displayRequestDuration": True,
+    },
 }
 
 
@@ -197,7 +237,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 
-# Where to redirect after login/logout:
+# Where to redirect after login/logout (not necessary for now)
 LOGIN_REDIRECT_URL = 'index'   # named URL to go to after login
 LOGOUT_REDIRECT_URL = 'login'  # after logout
 LOGIN_URL = 'login'            # where @login_required sends anonymous users
